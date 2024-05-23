@@ -28,14 +28,15 @@ let data = reactive({
     materials: {},
     selected_texture: 'video',
     textures: {video: null, webcam: null},
-    start_stop: 'Stop'
+    start_stop: 'Stop',
+    time: 0 // Added time
 });
 
 
 function createShaderMaterial(shader, scene) {
     let material = new ShaderMaterial(shader, scene, BASE_URL + 'shaders/' + shader, {
         attributes: ['position', 'uv'],
-        uniforms: ['worldViewProjection'],
+        uniforms: ['worldViewProjection', 'time'], // Added time
         samplers: ['image']
     });
     material.backFaceCulling = false;
@@ -191,6 +192,10 @@ onMounted(() => {
         if (data.textures[data.selected_texture] !== null) {
             data.materials[data.filter].setTexture('image', data.textures[data.selected_texture]);
         }
+
+        // Increment time and pass it to the ripple shader
+        data.time += engine.getDeltaTime() / 1000.0;  // Increase time based on frame time
+        data.materials.ripple.setFloat('time', data.time);  // Set the time uniform in the ripple shader
     });
 
     // Render every frame
